@@ -1,8 +1,8 @@
 <template>
   <div class="editor-view">
-    在此输入 value <input v-model="value">
-    <monaco-editor v-model="value"/>
+    <monaco-editor @change="(val)=>value=val"/>
   </div>
+  <p>{{ value }}</p>
 </template>
 
 <script lang="ts">

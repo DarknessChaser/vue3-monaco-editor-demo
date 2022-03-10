@@ -4,7 +4,7 @@
 
 <script>
 import { defineComponent } from 'vue';
-import { Uri, editor } from 'monaco-editor';
+import { Uri, editor } from 'monaco-editor/esm/vs/editor/editor.api';
 import { setDiagnosticsOptions } from 'monaco-yaml';
 
 // 仅用来匹配 schema 其实可以不写。
@@ -46,19 +46,6 @@ const defaultSchemas = [
 
 const defaultValue = 'p1: \n';
 
-window.MonacoEnvironment = {
-  getWorker(moduleId, label) {
-    switch (label) {
-      case 'editorWorkerService':
-        return new Worker(new URL('monaco-editor/esm/vs/editor/editor.worker', import.meta.url));
-      case 'yaml':
-        return new Worker(new URL('monaco-yaml/lib/esm/yaml.worker', import.meta.url));
-      default:
-        throw new Error(`Unknown label ${label}`);
-    }
-  },
-};
-
 let monacoEditor;
 export default defineComponent({
   name: 'MonacoEditor',
@@ -73,7 +60,7 @@ export default defineComponent({
       default: defaultSchemas, // 此处只是为了演示提供默认值，使用的时候要改成需要的值
     },
   },
-  emits: ['update:modelValue'],
+  emits: ['change'],
   watch: {
     modelValue(value) {
       if (monacoEditor) {
@@ -100,7 +87,7 @@ export default defineComponent({
       model: editor.createModel(defaultValue, 'yaml', modelUri),
     });
     monacoEditor.onDidChangeModelContent(() => {
-      this.$emit('update:modelValue', monacoEditor.getValue());
+      this.$emit('change', monacoEditor.getValue());
     });
   },
   beforeUnmount() {
